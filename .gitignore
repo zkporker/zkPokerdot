@@ -1,1 +1,5 @@
 .DS_Store
+build
+*.r1cs
+*.wasm
+*.sym
