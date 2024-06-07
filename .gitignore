@@ -3,3 +3,4 @@ build
 *.r1cs
 *.wasm
 *.sym
+target
