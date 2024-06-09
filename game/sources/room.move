@@ -76,5 +76,17 @@ module game::room{
         });
     }
 
-    
+    #[test_only]
+    use sui::test_scenario as ts;
+
+    #[test]
+    fun test_create_room(){
+        let mut ts = ts::begin(@0x0);
+        let admin = @0xAD;
+        let alice = @0xA;
+        let bob = @0xB;
+
+        //create the room
+        
+    }
 }
