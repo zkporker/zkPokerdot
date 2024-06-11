@@ -4,6 +4,7 @@ module game::room{
     use sui::event::Self;
     use std::string::{Self,String};
     use std::debug::print;
+    use sui::tx_context;
 
     const PLAYER_COUNT:u64 = 3;
 
@@ -85,6 +86,57 @@ module game::room{
         });
     }
 
+    // shuffle post card
+    public fun shuffle( room: &mut Room,cards: vector<u32>,ctx:&mut tx_context)  {
+    let gamer = tx_context::sender(ctx);
+    // GameDecks::<T>::insert(&game_id, cards.clone());
+    // // 更新存储中的状态
+    // PlayerStatus::<T>::insert(game_id, gamer, 1);
+    // //判断是否三位玩家都准备
+    // let mut count = 0;
+    // for _ in PlayerStatus::<T>::iter_prefix(game_id) {
+    // count += 1;
+    // }
+    // if count == 3 {
+    // if GameState::<T>::get(&game_id) == 2{
+    // return Err(Error::<T>::GameStarted.into())
+    // }
+    // GameState::<T>::insert(&game_id, 2);
+    // // 如果找到3条数据则可以开始发牌
+    // // 人数已满，游戏状态设为进行中
+    // // 按顺序发牌给三个玩家
+    // let mut player1_cards = Vec::new();
+    // let mut player2_cards = Vec::new();
+    // let mut player3_cards = Vec::new();
+    //
+    // // 留下的三张底牌
+    // let mut remaining_cards = Vec::new();
+    //
+    // // 分发牌给每位玩家
+    // for (index, &card) in cards.iter().enumerate() {
+    // match index {
+    // 0..=16 => player1_cards.push(card),  // 第一位玩家的牌
+    // 17..=33 => player2_cards.push(card), // 第二位玩家的牌
+    // 34..=50 => player3_cards.push(card), // 第三位玩家的牌
+    // _ => remaining_cards.push(card),     // 底牌
+    // }
+    // }
+    //
+    // // 存储玩家的牌
+    // let accounts = GamePlayers::<T>::get(&game_id);
+    // PlayerCards::<T>::insert(&accounts[0], player1_cards);
+    // PlayerCards::<T>::insert(&accounts[1], player2_cards);
+    // PlayerCards::<T>::insert(&accounts[2], player3_cards);
+    //
+    // // 存储底牌
+    // BottomCards::<T>::insert(&game_id, remaining_cards);
+    //
+    // Self::deposit_event(Event::PlayerAllPrepared);
+    // }
+    //
+    // Ok(().into())
+    }
+
     #[test_only]
     use sui::test_scenario as ts;
     #[test_only]
@@ -106,7 +158,7 @@ module game::room{
 
 
     #[test]
-    fun test_create_room(){
+    fun test_create_game(){
         let mut scenario = ts::begin(@0x0);
         let room_name = b"room1";
         {
@@ -200,4 +252,6 @@ module game::room{
         };
         ts::end(scenario);
     }
+
+
 }
