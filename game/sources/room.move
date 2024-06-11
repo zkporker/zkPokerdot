@@ -62,13 +62,13 @@ module game::room{
         let player = tx_context::sender(ctx);
         // let game_id = room.id;
         // get the accounts of room
-        let mut accounts = room.players;
+        let accounts = &mut room.players;
 
         if(accounts.is_none()){
             let mut players:vector<address> = std::vector::empty<address>();
             std::vector::push_back(&mut players,player);
-            std::option::fill(&mut accounts,players);
-            room.players = accounts;
+            std::option::fill(accounts,players);
+            // room.players = accounts;
         }else{
             let players = accounts.borrow_mut<vector<address>>();
             // make sure the amount of user less than 3
@@ -97,6 +97,12 @@ module game::room{
     const ALICE:address = @0xA;
     #[test_only]
     const BOB:address = @0xB;
+    #[test_only]
+    const CHALIE:address = @0xC;
+    #[test_only]
+    const DAVE:address = @0xD;
+    #[test_only]
+    const EVA:address = @0xe;
 
 
     #[test]
@@ -126,13 +132,26 @@ module game::room{
             create_game(room_name,b"csloud",ts::ctx(&mut scenario));
             ts::next_tx(&mut scenario, ALICE);
             let mut room:Room = ts::take_shared(&scenario);
-            join_game(&mut room,b"cloud",ts::ctx(&mut scenario));
+            join_game(&mut room,b"Alice",ts::ctx(&mut scenario));
+            // ts::return_shared(room);
+            ts::next_tx(&mut scenario, BOB);
+            // let mut room:Room = ts::take_shared(&scenario);
+
+            assert!(std::option::is_some(&room.players),1);
+            assert!(std::option::borrow(&room.players).length()==1,2);
+            join_game(&mut room,b"Bob",ts::ctx(&mut scenario));
+            ts::next_tx(&mut scenario, CHALIE);
+            assert!(std::option::borrow(&room.players).length()==2,3);
+            join_game(&mut room,b"Chalie",ts::ctx(&mut scenario));
+            ts::next_tx(&mut scenario, DAVE);
+            assert!(std::option::borrow(&room.players).length()==3,4);
             ts::return_shared(room);
         };
         ts::end(scenario);
     }
 
     #[test]
+    #[expected_failure(abort_code = EUserEnghou)]
     fun test_over_join_game(){
         let mut scenario = ts::begin(@0x0);
         let room_name = b"room1";
@@ -142,13 +161,42 @@ module game::room{
             ts::next_tx(&mut scenario, ALICE);
             let mut room:Room = ts::take_shared(&scenario);
             join_game(&mut room,b"Alice",ts::ctx(&mut scenario));
-            ts::return_shared(room);
+            // ts::return_shared(room);
             ts::next_tx(&mut scenario, BOB);
-            let mut room:Room = ts::take_shared(&scenario);
+            // let mut room:Room = ts::take_shared(&scenario);
 
-            assert!(std::option::is_some(&room.players),3);
+            assert!(std::option::is_some(&room.players),1);
+            assert!(std::option::borrow(&room.players).length()==1,2);
             join_game(&mut room,b"Bob",ts::ctx(&mut scenario));
+            ts::next_tx(&mut scenario, CHALIE);
+            assert!(std::option::borrow(&room.players).length()==2,3);
+            join_game(&mut room,b"Chalie",ts::ctx(&mut scenario));
+            ts::next_tx(&mut scenario, DAVE);
+            assert!(std::option::borrow(&room.players).length()==3,4);
+            join_game(&mut room,b"dave",ts::ctx(&mut scenario));
             ts::return_shared(room);
+        };
+        ts::end(scenario);
+    }
+
+    #[test]
+    #[expected_failure(abort_code = EUserInRoom)]
+    fun test_repeat_join_game(){
+        let mut scenario = ts::begin(@0x0);
+        let room_name = b"room1";
+        {
+            ts::next_tx(&mut scenario,ADMIN);
+            create_game(room_name,b"csloud",ts::ctx(&mut scenario));
+            ts::next_tx(&mut scenario, ALICE);
+            let mut room:Room = ts::take_shared(&scenario);
+            join_game(&mut room,b"Alice",ts::ctx(&mut scenario));
+
+            ts::next_tx(&mut scenario, ALICE);
+            assert!(std::option::is_some(&room.players),1);
+            assert!(std::option::borrow(&room.players).length()==1,2);
+            join_game(&mut room,b"Alice2",ts::ctx(&mut scenario));
+            ts::return_shared(room);
+
         };
         ts::end(scenario);
     }
